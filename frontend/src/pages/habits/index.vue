@@ -12,20 +12,31 @@
     </view>
 
     <view v-else class="list">
-      <view v-for="item in items" :key="item.id" class="habit-card">
+      <view
+        v-for="item in items"
+        :key="item.id"
+        class="habit-card"
+        @click="goDetail(item)"
+      >
         <view class="habit-info">
           <view class="habit-name">{{ item.name }}</view>
           <view class="habit-status">{{ statusText(item) }}</view>
         </view>
-        <button
-          class="check-btn"
-          :class="{ done: item.todayChecked }"
-          :loading="checkingId === item.id"
-          :disabled="checkingId === item.id || item.todayChecked"
-          @click="handleCheckIn(item)"
-        >
-          {{ item.todayChecked ? '已打卡' : '打卡' }}
-        </button>
+        <view class="habit-right">
+          <view class="streak-badge" :class="{ zero: item.streak === 0 }">
+            <view class="streak-num">{{ item.streak }}</view>
+            <view class="streak-txt">连续天</view>
+          </view>
+          <button
+            class="check-btn"
+            :class="{ done: item.todayChecked }"
+            :loading="checkingId === item.id"
+            :disabled="checkingId === item.id || item.todayChecked"
+            @click.stop="handleCheckIn(item)"
+          >
+            {{ item.todayChecked ? '已打卡' : '打卡' }}
+          </button>
+        </view>
       </view>
     </view>
 
@@ -94,6 +105,10 @@ async function handleLogout() {
 
 function goCreate() {
   uni.navigateTo({ url: '/pages/habits/create' })
+}
+
+function goDetail(item) {
+  uni.navigateTo({ url: `/pages/habits/detail?habitId=${item.id}` })
 }
 
 onShow(() => {
@@ -173,6 +188,34 @@ onShow(() => {
   margin-top: 12rpx;
   font-size: 26rpx;
   color: #6b7280;
+}
+
+.habit-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.streak-badge {
+  display: flex;
+  align-items: baseline;
+  color: #f97316;
+}
+
+.streak-badge.zero {
+  color: #9ca3af;
+}
+
+.streak-num {
+  font-size: 56rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.streak-txt {
+  font-size: 22rpx;
+  margin-left: 6rpx;
 }
 
 .check-btn {

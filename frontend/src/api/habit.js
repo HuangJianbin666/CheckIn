@@ -21,3 +21,10 @@ export function checkIn(habitId) {
     method: 'POST',
   })
 }
+
+export function getHabitDetail(habitId) {
+  return request({
+    url: `/habits/${habitId}`,
+    method: 'GET',
+  })
+}

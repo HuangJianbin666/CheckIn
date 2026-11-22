@@ -1,9 +1,10 @@
 # 习惯打卡（Habit Check-in）
 
-一个完整的习惯打卡应用：**注册 → 登录 → 创建打卡项 → 打卡 → 连续天数展示**。
+一个完整的习惯打卡应用：**注册 → 登录 → 创建打卡项 → 打卡 → 连续天数展示 → 打卡详情月历**。
 
 - 后端：Spring Boot 3（Java 17）+ MySQL + Redis，统一响应 `{code, message, data}`。
 - 前端：uniapp Vue 3 + Vite（H5），Composition API，原生组件 + CSS，不引入 UI 库、不 mock、不自算 streak。
+- 连续天数：列表卡片醒目展示当前连续天数，点击进入详情页查看历史打卡月历。
 - 验收：Playwright 全链路 E2E + `scripts/verify.ps1` 一键验收。
 
 ## 目录结构
@@ -21,7 +22,8 @@ checkIn-project/
 │  └─ src/main/resources/   # application-{dev,test,e2e}.yml、Flyway 迁移
 ├─ frontend/                # uniapp H5 前端
 │  ├─ src/api/              # request/token/auth/habit 封装
-│  ├─ src/pages/            # auth(login/register)、habits(index/create)
+│  ├─ src/utils/            # calendar.js 月历纯函数
+│  ├─ src/pages/            # auth(login/register)、habits(index/create/detail)
 │  └─ tests/e2e/            # Playwright 用例
 ├─ docs/api.md              # 接口契约与错误码
 └─ scripts/verify.ps1       # 一键验收脚本

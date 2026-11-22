@@ -23,6 +23,12 @@
       "style": {
         "navigationBarTitleText": "新建打卡项"
       }
+    },
+    {
+      "path": "pages/habits/detail",
+      "style": {
+        "navigationBarTitleText": "打卡详情"
+      }
     }
   ],
   "globalStyle": {

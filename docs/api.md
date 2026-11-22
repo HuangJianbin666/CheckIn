@@ -36,6 +36,7 @@
 | 5 | POST | `/habits` | 是 | 创建打卡项 |
 | 6 | GET | `/habits` | 是 | 打卡项列表（含今日状态、连续天数） |
 | 7 | POST | `/habits/{habitId}/check-ins` | 是 | 打卡（幂等） |
+| 8 | GET | `/habits/{habitId}` | 是 | 打卡项详情（含连续天数与历史日期） |
 
 ---
 
@@ -291,6 +292,46 @@
 
 ---
 
+## 8. 打卡项详情
+
+`GET /habits/{habitId}`
+
+请求头：`Authorization: Bearer <token>`
+
+`habitId` 为路径参数。
+
+成功 `200 OK`：
+
+```json
+{
+  "code": "OK",
+  "message": "success",
+  "data": {
+    "id": 1,
+    "name": "阅读 30 分钟",
+    "createdAt": "2026-11-21T03:00:00Z",
+    "todayChecked": true,
+    "streak": 1,
+    "streakAsOf": "2026-11-21",
+    "checkedDates": ["2026-11-21"]
+  },
+  "requestId": "uuid",
+  "timestamp": "2026-11-21T03:00:00Z"
+}
+```
+
+字段含义：
+
+- `todayChecked` / `streak` / `streakAsOf`：与列表接口语义一致。
+- `checkedDates`：该打卡项历史打卡日期（`yyyy-MM-dd`，升序，仅含 ≤ 今日），供前端渲染月历。
+
+失败：
+
+- `404 HABIT_NOT_FOUND` — 打卡项不存在，**或**属于他人（不泄露资源存在性）。
+- `401 UNAUTHENTICATED` — 未登录。
+
+---
+
 ## 错误码速查表
 
 | HTTP | code | 触发场景 |
@@ -320,7 +361,8 @@
 6. `POST /habits/{habitId}/check-ins` → 200，`streak=1`
 7. 重复执行第 6 步 → 200，`recordId` 不变（幂等）
 8. `GET /habits` → 200，`todayChecked=true`、`streak=1`
-9. `POST /auth/logout` → 200
-10. `GET /auth/me`（旧 token）→ 401
+9. `GET /habits/{habitId}` → 200，`checkedDates` 含今日、`streak=1`
+10. `POST /auth/logout` → 200
+11. `GET /auth/me`（旧 token）→ 401
 
 **负面测试**：重复注册（409）、错误密码登录（401）、无 token 访问受保护接口（401）、访问不存在的 `habitId`（404）。

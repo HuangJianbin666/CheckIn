@@ -16,6 +16,7 @@ const SEL = {
   pageRegister: 'uni-page[data-page="pages/auth/register"]',
   pageHabits: 'uni-page[data-page="pages/habits/index"]',
   pageCreate: 'uni-page[data-page="pages/habits/create"]',
+  pageDetail: 'uni-page[data-page="pages/habits/detail"]',
   textInput: 'input.uni-input-input[type="text"]',
   pwdInput: 'input.uni-input-input[type="password"]',
   primaryBtn: 'uni-button.primary-btn',
@@ -23,10 +24,15 @@ const SEL = {
   habitCard: '.habit-card',
   habitName: '.habit-name',
   habitStatus: '.habit-status',
+  streakBadge: '.streak-badge',
+  streakNum: '.streak-num',
   checkBtn: 'uni-button.check-btn',
   createBtn: 'uni-button.create-btn',
   logout: '.logout',
   empty: '.empty',
+  detailStreakNumber: '.streak-number',
+  calendar: '.calendar',
+  checkedDay: '.day-cell.checked',
 }
 
 // 通过注册页完成注册，最终停留在登录页
@@ -75,11 +81,13 @@ test('注册 → 登录 → 创建 → 打卡 → 刷新保持 → 退出', asyn
   const card = page.locator(SEL.habitCard).first()
   await expect(card.locator(SEL.habitName)).toHaveText('阅读 30 分钟')
   await expect(card.locator(SEL.habitStatus)).toHaveText('今日未打卡，连续 0 天')
+  await expect(card.locator(SEL.streakNum)).toHaveText('0')
   await expect(card.locator(SEL.checkBtn)).toHaveText('打卡')
 
   // 打卡后重新拉取列表，展示连续 1 天
   await card.locator(SEL.checkBtn).click()
   await expect(card.locator(SEL.habitStatus)).toHaveText('今日已打卡，连续 1 天')
+  await expect(card.locator(SEL.streakNum)).toHaveText('1')
   await expect(card.locator(SEL.checkBtn)).toHaveText('已打卡')
 
   // 刷新后登录态与状态均保持（token 持久化到 uni storage）
@@ -88,7 +96,16 @@ test('注册 → 登录 → 创建 → 打卡 → 刷新保持 → 退出', asyn
   const reloadedCard = page.locator(SEL.habitCard).first()
   await expect(reloadedCard.locator(SEL.habitStatus)).toHaveText('今日已打卡，连续 1 天')
 
-  // 退出后回到登录页
+  // 进入详情页：连续天数大字 + 月历 + 今日高亮
+  await reloadedCard.click()
+  await expect(page.locator(SEL.pageDetail)).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator(SEL.detailStreakNumber)).toHaveText('1')
+  await expect(page.locator(SEL.calendar)).toBeVisible()
+  await expect(page.locator(SEL.checkedDay)).toHaveCount(1)
+
+  // 返回列表并退出
+  await page.goBack()
+  await expect(page.locator(SEL.pageHabits)).toBeVisible()
   await page.click(SEL.logout)
   await expect(page.locator(SEL.pageLogin)).toBeVisible({ timeout: 10_000 })
 })
@@ -154,6 +171,15 @@ test('打卡幂等：重复打卡返回同一 recordId（真实 API）', async (
   expect(listBody.items).toHaveLength(1)
   expect(listBody.items[0].streak).toBe(1)
   expect(listBody.items[0].todayChecked).toBe(true)
+
+  // 详情接口：返回 streak 与历史打卡日期集合
+  const detail = await request.get(`${API}/habits/${habitId}`, { headers: auth })
+  expect(detail.status()).toBe(200)
+  const detailBody = (await detail.json()).data
+  expect(detailBody.id).toBe(habitId)
+  expect(detailBody.streak).toBe(1)
+  expect(detailBody.todayChecked).toBe(true)
+  expect(detailBody.checkedDates).toHaveLength(1)
 })
 
 test('用户隔离与退出后 token 失效（真实 API）', async ({ request }) => {
@@ -196,6 +222,13 @@ test('用户隔离与退出后 token 失效（真实 API）', async ({ request }
   })
   expect(cross.status()).toBe(404)
   expect((await cross.json()).code).toBe('HABIT_NOT_FOUND')
+
+  // B 尝试查看 A 的打卡项详情：同样 404
+  const crossDetail = await request.get(`${API}/habits/${habitIdA}`, {
+    headers: authB,
+  })
+  expect(crossDetail.status()).toBe(404)
+  expect((await crossDetail.json()).code).toBe('HABIT_NOT_FOUND')
 
   // A 退出后，旧 token 立即失效
   await request.post(`${API}/auth/logout`, { headers: authA })
