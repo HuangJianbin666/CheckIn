@@ -9,14 +9,7 @@
       <view class="streak-card">
         <view class="streak-label">当前连续打卡</view>
         <view class="streak-main">
-          <view class="flame" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="44" height="44">
-              <path
-                fill="currentColor"
-                d="M12 2c.6 2.8-1 4.6-2.5 6.3C8.1 10 6.5 11.6 6.5 14a5.5 5.5 0 0 0 11 0c0-2.1-.9-3.6-2-5-.6-.7-1.2-1.5-1.5-2.4-1.2 1.3-2.3 2.6-2.6 4.3-.2 1.1-.8 1.6-1.4 1.1-.3-.3-.4-.7-.2-1.1.9-1.7 1.6-4.3 2.2-6.9Z"
-              />
-            </svg>
-          </view>
+          <uni-icons type="fire-filled" size="44" color="#fffbeb" />
           <view class="streak-number">{{ detail.streak }}</view>
           <view class="streak-unit">天</view>
         </view>
@@ -25,32 +18,26 @@
         </view>
       </view>
 
-      <!-- 月历 -->
+      <!-- 打卡项信息 -->
+      <view class="meta-card">
+        <view class="meta-row">
+          <text class="meta-label">打卡项</text>
+          <text class="meta-value">{{ detail.name }}</text>
+        </view>
+        <view class="meta-row">
+          <text class="meta-label">目标时长</text>
+          <text class="meta-value">{{ detail.durationMinutes != null ? detail.durationMinutes + ' 分钟' : '未设置' }}</text>
+        </view>
+      </view>
+
+      <!-- 月历（uni-ui 日历，打卡日打点标记） -->
       <view class="calendar">
-        <view class="calendar-head">
-          <view class="nav" @click="prevMonth">‹</view>
-          <view class="title">{{ year }}年{{ month }}月</view>
-          <view class="nav" @click="nextMonth">›</view>
-        </view>
-
-        <view class="week-row">
-          <view v-for="w in weekLabels" :key="w" class="week-cell">{{ w }}</view>
-        </view>
-
-        <view v-for="(week, wi) in weeks" :key="wi" class="week-row">
-          <view
-            v-for="cell in week"
-            :key="cell.date"
-            class="day-cell"
-            :class="{
-              dim: !cell.inMonth,
-              checked: isChecked(cell.date),
-              today: cell.isToday,
-            }"
-          >
-            <view class="day-num">{{ cell.day }}</view>
-          </view>
-        </view>
+        <uni-calendar
+          :insert="true"
+          :selected="selectedDates"
+          :lunar="false"
+          :showMonth="false"
+        />
       </view>
     </view>
   </view>
@@ -60,34 +47,17 @@
 import { ref, computed } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { getHabitDetail } from '../../api/habit'
-import { buildMonthGrid, shiftMonth } from '../../utils/calendar'
-
-const weekLabels = ['日', '一', '二', '三', '四', '五', '六']
 
 const habitId = ref(null)
 const detail = ref(null)
 const loading = ref(true)
 
-const now = new Date()
-const view = ref({ year: now.getFullYear(), month: now.getMonth() + 1 })
-
-const weeks = computed(() => buildMonthGrid(view.value.year, view.value.month))
-const checkedSet = computed(() => {
-  if (!detail.value) return new Set()
-  return new Set(detail.value.checkedDates)
+// uni-calendar 打点格式：[{ date: 'yyyy-MM-dd', info: '' }]
+// info 传空字符串时仅显示圆点标记，不额外显示文字。
+const selectedDates = computed(() => {
+  if (!detail.value) return []
+  return detail.value.checkedDates.map((date) => ({ date, info: '' }))
 })
-
-function isChecked(date) {
-  return checkedSet.value.has(date)
-}
-
-function prevMonth() {
-  view.value = shiftMonth(view.value.year, view.value.month, -1)
-}
-
-function nextMonth() {
-  view.value = shiftMonth(view.value.year, view.value.month, 1)
-}
 
 onLoad((query) => {
   habitId.value = query.habitId
@@ -146,11 +116,8 @@ async function loadDetail() {
   margin-top: 16rpx;
 }
 
-.flame {
-  color: #fffbeb;
+.streak-main :deep(.uni-icons) {
   margin-right: 16rpx;
-  display: flex;
-  align-items: center;
 }
 
 .streak-number {
@@ -173,79 +140,41 @@ async function loadDetail() {
 .calendar {
   background: #ffffff;
   border-radius: 24rpx;
-  padding: 32rpx 24rpx;
+  padding: 24rpx 16rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
 }
 
-.calendar-head {
+.meta-card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.meta-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 12rpx 24rpx;
+  padding: 12rpx 0;
 }
 
-.nav {
-  width: 64rpx;
-  height: 64rpx;
-  line-height: 60rpx;
-  text-align: center;
-  font-size: 44rpx;
-  color: #2563eb;
+.meta-row + .meta-row {
+  border-top: 1px solid #f3f4f6;
 }
 
-.title {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1f2937;
+.meta-label {
+  font-size: 26rpx;
+  color: #6b7280;
 }
 
-.week-row {
-  display: flex;
-}
-
-.week-cell {
-  flex: 1;
-  text-align: center;
-  font-size: 24rpx;
-  color: #9ca3af;
-  padding: 8rpx 0;
-}
-
-.day-cell {
-  flex: 1;
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 2rpx;
-  border-radius: 12rpx;
-}
-
-.day-num {
-  width: 56rpx;
-  height: 56rpx;
-  line-height: 56rpx;
-  text-align: center;
+.meta-value {
   font-size: 28rpx;
-  color: #374151;
-  border-radius: 50%;
+  color: #1f2937;
+  font-weight: 500;
 }
 
-.day-cell.dim .day-num {
-  color: #d1d5db;
-}
-
-.day-cell.checked .day-num {
-  background: #2563eb;
-  color: #ffffff;
-}
-
-.day-cell.today .day-num {
-  box-shadow: inset 0 0 0 2rpx #2563eb;
-}
-
-.day-cell.today.checked .day-num {
-  box-shadow: none;
-  outline: 4rpx solid #bfdbfe;
+/* 打卡圆点统一为主色 */
+.calendar :deep(.uni-calendar-item__weeks-box-circle) {
+  background-color: #2563eb;
 }
 </style>

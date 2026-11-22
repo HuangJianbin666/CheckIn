@@ -14,8 +14,11 @@
 
 /* 颜色变量 */
 
+/* 项目主色（覆盖 uni-ui 默认 #2979ff） */
+$uni-primary: #2563eb;
+
 /* 行为相关颜色 */
-$uni-color-primary: #007aff;
+$uni-color-primary: #2563eb;
 $uni-color-success: #4cd964;
 $uni-color-warning: #f0ad4e;
 $uni-color-error: #dd524d;

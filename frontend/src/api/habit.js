@@ -1,10 +1,25 @@
 import { request } from './request'
 
-export function createHabit(name) {
+export function createHabit({ name, durationMinutes = null }) {
   return request({
     url: '/habits',
     method: 'POST',
-    data: { name },
+    data: { name, durationMinutes },
+  })
+}
+
+export function updateHabit(habitId, { name, durationMinutes }) {
+  return request({
+    url: `/habits/${habitId}`,
+    method: 'PUT',
+    data: { name, durationMinutes },
+  })
+}
+
+export function deleteHabit(habitId) {
+  return request({
+    url: `/habits/${habitId}`,
+    method: 'DELETE',
   })
 }
 

@@ -23,6 +23,7 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-5030420261029002",
     "@dcloudio/uni-mp-xhs": "3.0.0-5030420261029002",
     "@dcloudio/uni-quickapp-webview": "3.0.0-5030420261029002",
+    "@dcloudio/uni-ui": "^1.5.12",
     "vue": "^3.4.21",
     "vue-i18n": "^9.1.9"
   },
@@ -35,6 +36,7 @@
     "@playwright/test": "1.65.1",
     "@vue/runtime-core": "^3.4.21",
     "rollup": "4.14.3",
+    "sass": "^1.108.2",
     "vite": "5.2.8"
   }
 }

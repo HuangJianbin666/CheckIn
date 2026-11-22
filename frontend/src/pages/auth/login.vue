@@ -5,21 +5,23 @@
       <view class="subtitle">坚持，从今天开始</view>
 
       <view class="field">
-        <input
+        <uni-easyinput
           v-model="username"
-          class="input"
+          prefixIcon="person"
           placeholder="用户名（3-32 位字母/数字/下划线）"
-          placeholder-class="placeholder"
+          primaryColor="#2563eb"
+          :clearable="false"
         />
       </view>
 
       <view class="field">
-        <input
+        <uni-easyinput
           v-model="password"
-          class="input"
-          password
+          type="password"
+          prefixIcon="locked"
           placeholder="密码（8-72 位）"
-          placeholder-class="placeholder"
+          primaryColor="#2563eb"
+          :clearable="false"
         />
       </view>
 
@@ -116,17 +118,22 @@ function goRegister() {
   margin-top: 40rpx;
 }
 
-.input {
+.field :deep(.uni-easyinput__content) {
   height: 88rpx;
-  padding: 0 28rpx;
-  background: #f3f4f6;
   border-radius: 16rpx;
+  border: 1px solid #e5e7eb;
+  background: #f3f4f6;
+  padding: 0 24rpx;
+}
+
+.field :deep(.uni-easyinput__content-input) {
   font-size: 30rpx;
   color: #1f2937;
 }
 
-.placeholder {
+.field :deep(.uni-easyinput__placeholder-class) {
   color: #9ca3af;
+  font-size: 28rpx;
 }
 
 .primary-btn {

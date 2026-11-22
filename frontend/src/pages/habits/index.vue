@@ -2,13 +2,17 @@
   <view class="page">
     <view class="header">
       <view class="header-title">我的打卡</view>
-      <view class="logout" @click="handleLogout">退出</view>
+      <view class="logout" @click="handleLogout">
+        <uni-icons type="closeempty" size="16" color="#6b7280" class="logout-icon" />
+        <text>退出</text>
+      </view>
     </view>
 
     <view v-if="loading" class="empty">加载中…</view>
 
     <view v-else-if="items.length === 0" class="empty">
-      还没有打卡项，点击下方按钮创建第一个
+      <uni-icons type="circle-filled" size="56" color="#dbeafe" class="empty-icon" />
+      <view class="empty-text">还没有打卡项，点击下方按钮创建第一个</view>
     </view>
 
     <view v-else class="list">
@@ -21,6 +25,9 @@
         <view class="habit-info">
           <view class="habit-name">{{ item.name }}</view>
           <view class="habit-status">{{ statusText(item) }}</view>
+          <view v-if="item.durationMinutes != null" class="habit-duration">
+            目标 {{ item.durationMinutes }} 分钟
+          </view>
         </view>
         <view class="habit-right">
           <view class="streak-badge" :class="{ zero: item.streak === 0 }">
@@ -37,23 +44,51 @@
             {{ item.todayChecked ? '已打卡' : '打卡' }}
           </button>
         </view>
+
+        <view class="habit-actions">
+          <view class="action-btn detail-btn" @click.stop="goDetail(item)">
+            <uni-icons type="eye" size="16" color="#2563eb" />
+            <text>详情</text>
+          </view>
+          <view class="action-btn edit-btn" @click.stop="goEdit(item)">
+            <uni-icons type="compose" size="16" color="#2563eb" />
+            <text>编辑</text>
+          </view>
+          <view class="action-btn delete-btn" @click.stop="handleDelete(item)">
+            <uni-icons type="trash" size="16" color="#ef4444" />
+            <text>删除</text>
+          </view>
+        </view>
       </view>
     </view>
 
-    <button class="create-btn" @click="goCreate">新建打卡项</button>
+    <uni-fab
+      :pattern="fabPattern"
+      horizontal="right"
+      vertical="bottom"
+      :pop-menu="false"
+      @fabClick="goCreate"
+    />
   </view>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
-import { listHabits, checkIn } from '../../api/habit'
+import { listHabits, checkIn, deleteHabit } from '../../api/habit'
 import { logout } from '../../api/auth'
 import { getToken, removeToken } from '../../api/token'
 
 const items = ref([])
 const loading = ref(true)
 const checkingId = ref(null)
+
+// uni-fab 悬浮按钮配色：主色圆底 + 白色加号
+const fabPattern = {
+  buttonColor: '#2563eb',
+  iconColor: '#ffffff',
+  icon: 'plusempty',
+}
 
 // 纯展示函数：只消费后端返回的 streak / todayChecked，不自行计算连续天数
 function statusText(item) {
@@ -92,6 +127,30 @@ async function handleCheckIn(item) {
   }
 }
 
+function confirmDelete(item) {
+  return new Promise((resolve) => {
+    uni.showModal({
+      title: '删除打卡项',
+      content: `确定删除「${item.name}」吗？历史打卡记录将一并删除。`,
+      confirmText: '删除',
+      confirmColor: '#ef4444',
+      success: (res) => resolve(res.confirm),
+      fail: () => resolve(false),
+    })
+  })
+}
+
+async function handleDelete(item) {
+  const confirmed = await confirmDelete(item)
+  if (!confirmed) return
+  try {
+    await deleteHabit(item.id)
+    await loadList()
+  } catch (e) {
+    // 错误已由 request.js 提示
+  }
+}
+
 async function handleLogout() {
   try {
     await logout()
@@ -105,6 +164,10 @@ async function handleLogout() {
 
 function goCreate() {
   uni.navigateTo({ url: '/pages/habits/create' })
+}
+
+function goEdit(item) {
+  uni.navigateTo({ url: `/pages/habits/create?habitId=${item.id}` })
 }
 
 function goDetail(item) {
@@ -142,8 +205,15 @@ onShow(() => {
 }
 
 .logout {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
   font-size: 28rpx;
   color: #6b7280;
+}
+
+.logout-icon {
+  display: block;
 }
 
 .empty {
@@ -151,6 +221,16 @@ onShow(() => {
   text-align: center;
   color: #9ca3af;
   font-size: 28rpx;
+}
+
+.empty-icon {
+  display: block;
+  margin: 0 auto 24rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #9ca3af;
 }
 
 .list {
@@ -163,10 +243,16 @@ onShow(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   background: #ffffff;
   border-radius: 20rpx;
   padding: 32rpx;
   box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.habit-card:active {
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
+  transform: translateY(-2rpx);
 }
 
 .habit-info {
@@ -188,6 +274,12 @@ onShow(() => {
   margin-top: 12rpx;
   font-size: 26rpx;
   color: #6b7280;
+}
+
+.habit-duration {
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #9ca3af;
 }
 
 .habit-right {
@@ -238,16 +330,30 @@ onShow(() => {
   opacity: 0.7;
 }
 
-.create-btn {
-  position: fixed;
-  left: 32rpx;
-  right: 32rpx;
-  bottom: 40rpx;
-  height: 96rpx;
-  line-height: 96rpx;
-  background: #2563eb;
-  color: #ffffff;
-  border-radius: 20rpx;
-  font-size: 32rpx;
+.habit-actions {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 24rpx;
+  padding-top: 24rpx;
+  border-top: 1px solid #f3f4f6;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 0 24rpx;
+  height: 56rpx;
+  border-radius: 28rpx;
+  background: #eff6ff;
+  font-size: 24rpx;
+  color: #2563eb;
+}
+
+.delete-btn {
+  background: #fef2f2;
+  color: #ef4444;
 }
 </style>

@@ -24,15 +24,22 @@ const SEL = {
   habitCard: '.habit-card',
   habitName: '.habit-name',
   habitStatus: '.habit-status',
+  habitDuration: '.habit-duration',
   streakBadge: '.streak-badge',
   streakNum: '.streak-num',
   checkBtn: 'uni-button.check-btn',
-  createBtn: 'uni-button.create-btn',
+  createBtn: '.uni-fab__circle',
+  detailBtn: '.detail-btn',
+  editBtn: '.edit-btn',
+  deleteBtn: '.delete-btn',
+  durationChip: '.duration-chip',
   logout: '.logout',
   empty: '.empty',
   detailStreakNumber: '.streak-number',
+  metaValue: '.meta-value',
+  modalConfirm: '.uni-modal__btn_primary',
   calendar: '.calendar',
-  checkedDay: '.day-cell.checked',
+  checkedDay: '.uni-calendar-item__weeks-box-circle',
 }
 
 // 通过注册页完成注册，最终停留在登录页
@@ -97,7 +104,7 @@ test('注册 → 登录 → 创建 → 打卡 → 刷新保持 → 退出', asyn
   await expect(reloadedCard.locator(SEL.habitStatus)).toHaveText('今日已打卡，连续 1 天')
 
   // 进入详情页：连续天数大字 + 月历 + 今日高亮
-  await reloadedCard.click()
+  await reloadedCard.locator(SEL.detailBtn).click()
   await expect(page.locator(SEL.pageDetail)).toBeVisible({ timeout: 10_000 })
   await expect(page.locator(SEL.detailStreakNumber)).toHaveText('1')
   await expect(page.locator(SEL.calendar)).toBeVisible()
@@ -108,6 +115,53 @@ test('注册 → 登录 → 创建 → 打卡 → 刷新保持 → 退出', asyn
   await expect(page.locator(SEL.pageHabits)).toBeVisible()
   await page.click(SEL.logout)
   await expect(page.locator(SEL.pageLogin)).toBeVisible({ timeout: 10_000 })
+})
+
+test('创建带时长 → 详情展示 → 编辑改名改时长 → 删除', async ({ page }) => {
+  const username = genUsername()
+  await registerViaUi(page, username, PASSWORD)
+  await loginViaUi(page, username, PASSWORD)
+
+  // 初始为空列表
+  await expect(page.locator(SEL.empty)).toBeVisible()
+
+  // 创建打卡项并选择 45 分钟档位
+  await page.click(SEL.createBtn)
+  await expect(page.locator(SEL.pageCreate)).toBeVisible()
+  await page.fill(SEL.textInput, '晨跑')
+  await page.locator(SEL.durationChip).filter({ hasText: '45 分钟' }).click()
+  await page.click(SEL.primaryBtn)
+  await expect(page.locator(SEL.pageHabits)).toBeVisible({ timeout: 10_000 })
+
+  const card = page.locator(SEL.habitCard).first()
+  await expect(card.locator(SEL.habitName)).toHaveText('晨跑')
+  await expect(card.locator(SEL.habitDuration)).toHaveText('目标 45 分钟')
+
+  // 详情页展示时长（meta-value 第 0 项为名称，第 1 项为时长）
+  await card.locator(SEL.detailBtn).click()
+  await expect(page.locator(SEL.pageDetail)).toBeVisible({ timeout: 10_000 })
+  await expect(page.locator(SEL.metaValue).nth(1)).toHaveText('45 分钟')
+  await page.goBack()
+  await expect(page.locator(SEL.pageHabits)).toBeVisible()
+
+  // 编辑：改名并改时长 90 分钟（等待预填完成后填充）
+  const card2 = page.locator(SEL.habitCard).first()
+  await card2.locator(SEL.editBtn).click()
+  await expect(page.locator(SEL.pageCreate)).toBeVisible()
+  await expect(page.locator(SEL.textInput)).toHaveValue('晨跑')
+  await page.fill(SEL.textInput, '夜跑')
+  await page.locator(SEL.durationChip).filter({ hasText: '90 分钟' }).click()
+  await page.click(SEL.primaryBtn)
+  await expect(page.locator(SEL.pageHabits)).toBeVisible({ timeout: 10_000 })
+
+  const card3 = page.locator(SEL.habitCard).first()
+  await expect(card3.locator(SEL.habitName)).toHaveText('夜跑')
+  await expect(card3.locator(SEL.habitDuration)).toHaveText('目标 90 分钟')
+
+  // 删除：二次确认后列表回到空态
+  await card3.locator(SEL.deleteBtn).click()
+  await page.locator(SEL.modalConfirm).click()
+  await expect(page.locator(SEL.empty)).toBeVisible({ timeout: 10_000 })
 })
 
 test('错误密码登录被拒绝并停留在登录页', async ({ page }) => {
