@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: checkin
+  profiles:
+    default: dev
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  port: 8080
+  error:
+    include-message: never
+    include-binding-errors: never
+
+checkin:
+  timezone: Asia/Shanghai

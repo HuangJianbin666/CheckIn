@@ -1,0 +1,24 @@
+# 构建产物
+target/
+dist/
+node_modules/
+.unpackage/
+.hbuilderx/
+
+# 本地凭据与配置
+.env
+.env.*
+application-local.yml
+*.local.yml
+
+# 测试产物
+test-results/
+playwright-report/
+playwright/.cache/
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.iml
+.DS_Store

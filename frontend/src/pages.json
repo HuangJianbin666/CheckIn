@@ -1,0 +1,34 @@
+{
+  "pages": [
+    {
+      "path": "pages/auth/login",
+      "style": {
+        "navigationBarTitleText": "登录"
+      }
+    },
+    {
+      "path": "pages/auth/register",
+      "style": {
+        "navigationBarTitleText": "注册"
+      }
+    },
+    {
+      "path": "pages/habits/index",
+      "style": {
+        "navigationBarTitleText": "我的打卡"
+      }
+    },
+    {
+      "path": "pages/habits/create",
+      "style": {
+        "navigationBarTitleText": "新建打卡项"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "习惯打卡",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  }
+}
