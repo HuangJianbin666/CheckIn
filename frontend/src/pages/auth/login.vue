@@ -9,7 +9,7 @@
           v-model="username"
           prefixIcon="person"
           placeholder="用户名（3-32 位字母/数字/下划线）"
-          primaryColor="#2563eb"
+          primaryColor="#5B8DEF"
           :clearable="false"
         />
       </view>
@@ -20,7 +20,7 @@
           type="password"
           prefixIcon="locked"
           placeholder="密码（8-72 位）"
-          primaryColor="#2563eb"
+          primaryColor="#5B8DEF"
           :clearable="false"
         />
       </view>
@@ -94,23 +94,23 @@ function goRegister() {
 .card {
   width: 100%;
   max-width: 640rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
   padding: 60rpx 48rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .brand {
   font-size: 48rpx;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-strong);
   text-align: center;
 }
 
 .subtitle {
   margin-top: 12rpx;
   font-size: 26rpx;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   text-align: center;
 }
 
@@ -119,42 +119,49 @@ function goRegister() {
 }
 
 .field :deep(.uni-easyinput__content) {
-  height: 88rpx;
-  border-radius: 16rpx;
-  border: 1px solid #e5e7eb;
-  background: #f3f4f6;
+  height: 92rpx;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-input);
   padding: 0 24rpx;
 }
 
 .field :deep(.uni-easyinput__content-input) {
   font-size: 30rpx;
-  color: #1f2937;
+  color: var(--color-text-strong);
 }
 
 .field :deep(.uni-easyinput__placeholder-class) {
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 28rpx;
 }
 
 .primary-btn {
   margin-top: 48rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  background: #2563eb;
+  height: 92rpx;
+  line-height: 92rpx;
+  background: var(--color-primary);
   color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   font-size: 32rpx;
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.primary-btn:active {
+  background: var(--color-primary-dark);
+  transform: scale(0.97);
 }
 
 .primary-btn[disabled] {
-  background: #93c5fd;
+  background: var(--color-primary-disabled);
   color: #ffffff;
 }
 
 .switch {
   margin-top: 32rpx;
+  padding: 16rpx 0;
   text-align: center;
   font-size: 26rpx;
-  color: #2563eb;
+  color: var(--color-primary);
 }
 </style>

@@ -87,7 +87,7 @@ async function loadDetail() {
 .empty {
   padding: 160rpx 0;
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 28rpx;
 }
 
@@ -98,11 +98,25 @@ async function loadDetail() {
 }
 
 .streak-card {
-  background: linear-gradient(135deg, #f97316, #ef4444);
-  border-radius: 24rpx;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-deep));
+  border-radius: var(--radius-xl);
   padding: 48rpx 40rpx;
   color: #ffffff;
-  box-shadow: 0 8rpx 32rpx rgba(239, 68, 68, 0.25);
+  box-shadow: 0 12rpx 32rpx rgba(238, 138, 78, 0.24);
+}
+
+.streak-card::after {
+  content: '';
+  position: absolute;
+  top: -40%;
+  right: -20%;
+  width: 320rpx;
+  height: 320rpx;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0));
+  pointer-events: none;
 }
 
 .streak-label {
@@ -138,17 +152,17 @@ async function loadDetail() {
 }
 
 .calendar {
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
   padding: 24rpx 16rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .meta-card {
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
   padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
 }
 
 .meta-row {
@@ -159,22 +173,22 @@ async function loadDetail() {
 }
 
 .meta-row + .meta-row {
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--color-border);
 }
 
 .meta-label {
   font-size: 26rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .meta-value {
   font-size: 28rpx;
-  color: #1f2937;
+  color: var(--color-text-strong);
   font-weight: 500;
 }
 
 /* 打卡圆点统一为主色 */
 .calendar :deep(.uni-calendar-item__weeks-box-circle) {
-  background-color: #2563eb;
+  background-color: var(--color-primary);
 }
 </style>

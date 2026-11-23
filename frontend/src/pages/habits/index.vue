@@ -3,7 +3,7 @@
     <view class="header">
       <view class="header-title">我的打卡</view>
       <view class="logout" @click="handleLogout">
-        <uni-icons type="closeempty" size="16" color="#6b7280" class="logout-icon" />
+        <uni-icons type="closeempty" size="16" color="#7C8494" class="logout-icon" />
         <text>退出</text>
       </view>
     </view>
@@ -11,7 +11,7 @@
     <view v-if="loading" class="empty">加载中…</view>
 
     <view v-else-if="items.length === 0" class="empty">
-      <uni-icons type="circle-filled" size="56" color="#dbeafe" class="empty-icon" />
+      <uni-icons type="circle-filled" size="56" color="#EAF1FE" class="empty-icon" />
       <view class="empty-text">还没有打卡项，点击下方按钮创建第一个</view>
     </view>
 
@@ -47,15 +47,15 @@
 
         <view class="habit-actions">
           <view class="action-btn detail-btn" @click.stop="goDetail(item)">
-            <uni-icons type="eye" size="16" color="#2563eb" />
+            <uni-icons type="eye" size="16" color="#5B8DEF" />
             <text>详情</text>
           </view>
           <view class="action-btn edit-btn" @click.stop="goEdit(item)">
-            <uni-icons type="compose" size="16" color="#2563eb" />
+            <uni-icons type="compose" size="16" color="#5B8DEF" />
             <text>编辑</text>
           </view>
           <view class="action-btn delete-btn" @click.stop="handleDelete(item)">
-            <uni-icons type="trash" size="16" color="#ef4444" />
+            <uni-icons type="trash" size="16" color="#EE8A4E" />
             <text>删除</text>
           </view>
         </view>
@@ -85,7 +85,7 @@ const checkingId = ref(null)
 
 // uni-fab 悬浮按钮配色：主色圆底 + 白色加号
 const fabPattern = {
-  buttonColor: '#2563eb',
+  buttonColor: '#5B8DEF',
   iconColor: '#ffffff',
   icon: 'plusempty',
 }
@@ -201,15 +201,21 @@ onShow(() => {
 .header-title {
   font-size: 40rpx;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-strong);
 }
 
 .logout {
   display: flex;
   align-items: center;
   gap: 8rpx;
+  padding: 16rpx 0 16rpx 16rpx;
   font-size: 28rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
+  transition: opacity var(--dur-fast) ease;
+}
+
+.logout:active {
+  opacity: 0.7;
 }
 
 .logout-icon {
@@ -219,7 +225,7 @@ onShow(() => {
 .empty {
   padding: 120rpx 0;
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 28rpx;
 }
 
@@ -230,7 +236,7 @@ onShow(() => {
 
 .empty-text {
   font-size: 28rpx;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .list {
@@ -244,15 +250,16 @@ onShow(() => {
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  background: #ffffff;
-  border-radius: 20rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
   padding: 32rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--dur-fast) ease, box-shadow var(--dur-fast) ease;
 }
 
 .habit-card:active {
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.08);
-  transform: translateY(-2rpx);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2rpx) scale(0.99);
 }
 
 .habit-info {
@@ -264,7 +271,7 @@ onShow(() => {
 .habit-name {
   font-size: 32rpx;
   font-weight: 500;
-  color: #1f2937;
+  color: var(--color-text-strong);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -273,13 +280,13 @@ onShow(() => {
 .habit-status {
   margin-top: 12rpx;
   font-size: 26rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
 }
 
 .habit-duration {
   margin-top: 8rpx;
   font-size: 24rpx;
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .habit-right {
@@ -292,11 +299,11 @@ onShow(() => {
 .streak-badge {
   display: flex;
   align-items: baseline;
-  color: #f97316;
+  color: var(--color-accent);
 }
 
 .streak-badge.zero {
-  color: #9ca3af;
+  color: var(--color-text-muted);
 }
 
 .streak-num {
@@ -312,22 +319,28 @@ onShow(() => {
 
 .check-btn {
   margin: 0;
-  height: 72rpx;
-  line-height: 72rpx;
+  height: 88rpx;
+  line-height: 88rpx;
   padding: 0 32rpx;
   font-size: 28rpx;
-  border-radius: 16rpx;
-  background: #2563eb;
+  border-radius: var(--radius-md);
+  background: var(--color-primary);
   color: #ffffff;
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.check-btn:active {
+  background: var(--color-primary-dark);
+  transform: scale(0.97);
 }
 
 .check-btn.done {
-  background: #e5e7eb;
-  color: #6b7280;
+  background: var(--color-bg-disabled);
+  color: var(--color-text-secondary);
 }
 
 .check-btn[disabled] {
-  opacity: 0.7;
+  opacity: 1;
 }
 
 .habit-actions {
@@ -337,23 +350,30 @@ onShow(() => {
   gap: 16rpx;
   margin-top: 24rpx;
   padding-top: 24rpx;
-  border-top: 1px solid #f3f4f6;
+  border-top: 1px solid var(--color-border);
 }
 
 .action-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8rpx;
   padding: 0 24rpx;
-  height: 56rpx;
-  border-radius: 28rpx;
-  background: #eff6ff;
+  height: 72rpx;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-soft);
   font-size: 24rpx;
-  color: #2563eb;
+  color: var(--color-primary);
+  transition: transform var(--dur-fast) ease, opacity var(--dur-fast) ease;
+}
+
+.action-btn:active {
+  transform: scale(0.97);
+  opacity: 0.85;
 }
 
 .delete-btn {
-  background: #fef2f2;
-  color: #ef4444;
+  background: var(--color-accent-soft);
+  color: var(--color-accent-deep);
 }
 </style>

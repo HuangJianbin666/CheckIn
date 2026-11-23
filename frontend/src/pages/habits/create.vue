@@ -9,7 +9,7 @@
           v-model="name"
           prefixIcon="compose"
           placeholder="例如：阅读 30 分钟（1-50 字）"
-          primaryColor="#2563eb"
+          primaryColor="#5B8DEF"
           :clearable="false"
         />
       </view>
@@ -41,7 +41,7 @@
             v-model="customMinutes"
             type="number"
             placeholder="请输入分钟数（1-1440）"
-            primaryColor="#2563eb"
+            primaryColor="#5B8DEF"
             :clearable="false"
           />
         </view>
@@ -191,23 +191,23 @@ async function handleSubmit() {
 }
 
 .card {
-  background: #ffffff;
-  border-radius: 24rpx;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
   padding: 60rpx 48rpx;
-  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-md);
 }
 
 .brand {
   font-size: 44rpx;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-text-strong);
   text-align: center;
 }
 
 .subtitle {
   margin-top: 12rpx;
   font-size: 26rpx;
-  color: #9ca3af;
+  color: var(--color-text-muted);
   text-align: center;
 }
 
@@ -216,26 +216,26 @@ async function handleSubmit() {
 }
 
 .field :deep(.uni-easyinput__content) {
-  height: 88rpx;
-  border-radius: 16rpx;
-  border: 1px solid #e5e7eb;
-  background: #f3f4f6;
+  height: 92rpx;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-input);
   padding: 0 24rpx;
 }
 
 .field :deep(.uni-easyinput__content-input) {
   font-size: 30rpx;
-  color: #1f2937;
+  color: var(--color-text-strong);
 }
 
 .field :deep(.uni-easyinput__placeholder-class) {
-  color: #9ca3af;
+  color: var(--color-text-muted);
   font-size: 28rpx;
 }
 
 .duration-label {
   font-size: 28rpx;
-  color: #6b7280;
+  color: var(--color-text-secondary);
   margin-bottom: 20rpx;
 }
 
@@ -246,20 +246,28 @@ async function handleSubmit() {
 }
 
 .duration-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 28rpx;
-  height: 64rpx;
-  line-height: 64rpx;
-  border-radius: 32rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: var(--radius-pill);
   font-size: 26rpx;
-  color: #374151;
-  background: #f3f4f6;
-  border: 1px solid #e5e7eb;
+  color: var(--color-text-body);
+  background: var(--color-bg-input);
+  border: 1px solid var(--color-border);
+  transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.duration-chip:active {
+  transform: scale(0.96);
 }
 
 .duration-chip.active {
   color: #ffffff;
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
 }
 
 .duration-custom {
@@ -268,16 +276,22 @@ async function handleSubmit() {
 
 .primary-btn {
   margin-top: 48rpx;
-  height: 88rpx;
-  line-height: 88rpx;
-  background: #2563eb;
+  height: 92rpx;
+  line-height: 92rpx;
+  background: var(--color-primary);
   color: #ffffff;
-  border-radius: 16rpx;
+  border-radius: var(--radius-md);
   font-size: 32rpx;
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.primary-btn:active {
+  background: var(--color-primary-dark);
+  transform: scale(0.97);
 }
 
 .primary-btn[disabled] {
-  background: #93c5fd;
+  background: var(--color-primary-disabled);
   color: #ffffff;
 }
 </style>
