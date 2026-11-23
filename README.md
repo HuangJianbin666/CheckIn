@@ -29,12 +29,64 @@ checkIn-project/
 └─ scripts/verify.ps1       # 一键验收脚本
 ```
 
-## 环境要求（已就绪，本仓库不提供安装教程）
+## 环境要求
 
 - JDK 17
 - Node.js 22 / npm 10
+- Docker
 - MySQL 8（本地 `127.0.0.1:3306`）
-- Redis（Docker 容器名 `redis`，已运行）
+- Redis 7（Docker 容器名 `redis`）
+
+MySQL 与 Redis 的首次部署见下方「MySQL 与 Redis 部署（Docker）」。
+
+## MySQL 与 Redis 部署（Docker）
+
+以下命令用 Docker 拉起 MySQL 8 与 Redis 7，默认值与后端配置对齐（`root` / `root`、端口 `3306` / `6379`）。
+
+### 首次部署
+
+Redis（容器名固定为 `redis`，与 `scripts/verify.ps1` 一致）：
+
+```powershell
+docker run -d --name redis -p 6379:6379 --restart unless-stopped redis:7
+```
+
+MySQL 8（默认 root 密码 `root`，与后端默认 `DB_PASSWORD=root` 一致；数据卷持久化）：
+
+```powershell
+docker run -d --name mysql -p 3306:3306 --restart unless-stopped `
+  -e MYSQL_ROOT_PASSWORD=root `
+  -v mysql-data:/var/lib/mysql `
+  mysql:8.0 `
+  --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+```
+
+### 预建数据库
+
+三个库由 Flyway 启动时自动建表，但**数据库本身需预建**（`checkin_dev` / `checkin_test` / `checkin_e2e` 对应 dev / test / e2e profile）：
+
+```powershell
+docker exec -i mysql mysql -uroot -proot -e "CREATE DATABASE IF NOT EXISTS checkin_dev DEFAULT CHARACTER SET utf8mb4; CREATE DATABASE IF NOT EXISTS checkin_test DEFAULT CHARACTER SET utf8mb4; CREATE DATABASE IF NOT EXISTS checkin_e2e DEFAULT CHARACTER SET utf8mb4;"
+```
+
+### 连通性检查
+
+```powershell
+docker exec mysql mysql -uroot -proot -e "SELECT 1"
+docker exec redis redis-cli ping   # 应返回 PONG
+```
+
+### 容器管理
+
+```powershell
+docker start mysql ; docker start redis      # 启动
+docker stop mysql ; docker stop redis        # 停止
+docker restart mysql ; docker restart redis  # 重启
+docker logs -f mysql                         # 跟踪 MySQL 日志
+docker logs -f redis                         # 跟踪 Redis 日志
+```
+
+> 若已存在同名容器，`docker run` 会报错，改为 `docker start mysql` / `docker start redis` 复用已有容器即可。
 
 ## 连接环境变量
 
@@ -47,6 +99,8 @@ checkIn-project/
 | `REDIS_HOST` | `127.0.0.1` | Redis 主机 |
 | `REDIS_PORT` | `6379` | Redis 端口 |
 | `REDIS_DATABASE` | 按 profile 取 0/1/2 | Redis logical DB（见下表，无需手动设置） |
+
+若部署时修改了密码或端口，可通过 `DB_PASSWORD`、`REDIS_PORT` 等变量覆盖，与上节 Docker 部署的默认值对应。
 
 ## 环境隔离
 
@@ -84,18 +138,6 @@ npm run test:e2e   # Playwright（前置：e2e 后端 + H5 dev server）
 ```
 
 首次运行 E2E 前安装浏览器（幂等）：`npx playwright install chromium`。
-
-## Redis 容器管理
-
-容器名 `redis`：
-
-```powershell
-docker start redis          # 启动
-docker stop redis           # 停止
-docker restart redis        # 重启（恢复）
-docker logs -f redis        # 跟踪日志
-docker exec redis redis-cli ping   # 连通性检查（应返回 PONG）
-```
 
 ## API 与错误码
 
