@@ -38,3 +38,6 @@ CREATE TABLE check_in_records (
         REFERENCES habits (user_id, id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+-- 打卡项新增可选目标时长（分钟）。NULL 表示未设置，取值区间由应用层校验为 1-1440。
+ALTER TABLE habits ADD COLUMN duration_minutes INT NULL;
